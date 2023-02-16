@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Home.css";
 import {
   API_URL,
@@ -22,15 +22,18 @@ const Home = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchItems = async (endpoint) => {
-    setLoading(true);
-    const result = await (await fetch(endpoint)).json();
-    setMovies((prevMovies) => [...prevMovies, ...result.results]);
-    setHeroImage(heroImage || result.results[0]);
-    setCurrentPage(result.page);
-    setTotalPages(result.total_pages);
-    setLoading(false);
-  };
+  const fetchItems = useCallback(
+    async (endpoint) => {
+      setLoading(true);
+      const result = await (await fetch(endpoint)).json();
+      setMovies((prevMovies) => [...prevMovies, ...result.results]);
+      setHeroImage(heroImage || result.results[0]);
+      setCurrentPage(result.page);
+      setTotalPages(result.total_pages);
+      setLoading(false);
+    },
+    [heroImage]
+  );
 
   const loadMoreItems = () => {
     let endpoint = "";
@@ -65,7 +68,7 @@ const Home = () => {
   useEffect(() => {
     const endpoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
     fetchItems(endpoint);
-  }, []);
+  }, [fetchItems]);
 
   return (
     <div className="rmdb-home">
